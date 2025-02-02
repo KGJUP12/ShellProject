@@ -30,7 +30,7 @@ fi
 #So to traverse all log files and upload the one generated today.
 
 for job_dir in "$JENKINS_HOME/jobs/"*/;do    #double quotes ensure that $jenkins_home/logs/ is treated as single entity preserving spaces , and * is wildcard and / ensures that only directory is selected
-        job_name=$(basename "$job_dir)" #$() is command substitution, executes the command and stores it output, basename extracts last word from the directry namespaces which is stored in job_dir here
+        job_name=$(basename "$job_dir") #$() is command substitution, executes the command and stores it output, basename extracts last word from the directry namespaces which is stored in job_dir here
 
         #Iterate through builds directory for jobs
         for builds_dir in "$job_dir/builds/"*/; do
@@ -38,12 +38,12 @@ for job_dir in "$JENKINS_HOME/jobs/"*/;do    #double quotes ensure that $jenkins
                 log_file="$builds_dir/logs"
 
                 #Check if logs file exists and was created today
-                if [-f "$log_file"]&&["$( date -r "$log_file" +%Y-%m-%d)"== "$DATE")]; then  #date -r is used to find the last modified date of file and then format it in Y-m-d format.
+                if [ -f "$log_file" ] && [ "$(date -r "$log_file" +%Y-%m-%d)" == "$DATE")]; then  #date -r is used to find the last modified date of file and then format it in Y-m-d format.
                         #Upload log file to s3 bucket 
                         aws cp "$log_file" "$S3_BUCKET/$job_name-$build_no.log" --only-show-errors
 
-                        if[$? -eq 0];then
-                                echo"UPLOADED SUCCESSFULLY $job_name/$build_no to $S3_BUCKET/$job_name-$build_no.log"
+                        if[ $? -eq 0 ];  then
+                                echo "UPLOADED SUCCESSFULLY $job_name/$build_no to $S3_BUCKET/$job_name-$build_no.log"
                         else
                                 echo "Failed to Upload $job_name/$build_no"
                         fi
